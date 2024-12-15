@@ -25,3 +25,13 @@
 - Incluir diferentes niveles de dificultad
 - Agregar animaciones para mejor UX
 - Implementar modo multijugador
+
+# How to Run
+
+1. Start the FastAPI server
+- Open a terminal and navigate to the project directory.
+    - cd server    
+- Run the following command to start the FastAPI server:
+    - uvicorn server:app --reload
+
+2. Open client/index.html: Open the HTML file in your web browser.
