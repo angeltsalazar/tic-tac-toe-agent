@@ -41,6 +41,18 @@ class TicTacToeClient {
         this.board[position] = this.currentPlayer;
         this.updateUI();
 
+        // Check for winner immediately after player's move
+        const winner = await this.checkWinner();
+        if (winner) {
+            this.gameOver = true;
+            if (winner === "Tie") {
+                alert(`The game is a ${winner}!`);
+            } else {
+                alert(`Player ${winner} wins!`);
+            }
+            return; // Exit early if game is won
+        }
+        
         const moveData = {
             type: "player_move",
             position: position,
@@ -50,7 +62,7 @@ class TicTacToeClient {
         this.ws.send(JSON.stringify(moveData));
 
 
-        // Fetch the agent's move and update the board
+        // Only proceed with agent's move if game isn't over
         try {
             const response = await fetch('http://localhost:8000/make_move', {
                 method: 'POST',
@@ -65,25 +77,30 @@ class TicTacToeClient {
 
             if (!response.ok) {
                 console.error('Failed to fetch agent move', response.status, await response.text());
+                // Make sure to update UI even when there's an error
+                this.updateUI();
                 return;
             }
 
             const data = await response.json();
-            // Update board with agent's move.
+            // Keep the current board state if there's an error
             if (data.error) {
                 console.log(data.error);
+                // Make sure to update UI when there's an error message
+                this.updateUI();
                 return;
             }
             this.board = data.board;
             this.updateUI();
 
-            const winner = await this.checkWinner();
-            if (winner) {
+            // Check for winner after agent's move
+            const agentWinner = await this.checkWinner();
+            if (agentWinner) {
                 this.gameOver = true;
-                if (winner == "Tie") {
-                    alert(`The game is a ${winner}!`);
+                if (agentWinner == "Tie") {
+                    alert(`The game is a ${agentWinner}!`);
                 } else {
-                    alert(`Player ${winner} wins!`);
+                    alert(`Player ${agentWinner} wins!`);
                 }
 
             }
