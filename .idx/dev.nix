@@ -8,6 +8,13 @@
   packages = with pkgs; [
     python311
     python311Packages.pip
+    python311Packages.fastapi
+    python311Packages.uvicorn
+    python311Packages.websockets
+    python311Packages.python-socketio
+    python311Packages.numpy
+    python311Packages.python-multipart
+    python311Packages.pydantic
   ];
 
   # Sets environment variables in the workspace
@@ -44,15 +51,13 @@
       onCreate = {
         # Example: install JS dependencies from NPM
         # npm-install = "npm install";
-        # Install python dependencies after creating the workspace
-        # Assuming your requirements are in requirements.txt
-        pip-install = "python3 -m pip install -r requirements.txt";
       };
       # Runs when the workspace is (re)started
       onStart = {
         # Example: start a background task to watch and re-build backend code
         # watch-backend = "npm run watch-backend";
-        # start-server = "uvicorn server:app --reload";
+        # Example: start the server using uvicorn
+        #start-server = "uvicorn server.server:app --reload"; 
       };
     };
   };
