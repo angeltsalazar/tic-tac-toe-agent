@@ -24,16 +24,16 @@
     previews = {
       enable = true;
       previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
+        web = {
+          # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
+          # and show it in IDX's web preview panel
+          command = ["npm" "run" "dev"];
+          manager = "web";
+          env = {
+            # Environment variables to set for your server
+            PORT = "$PORT";
+          };
+        };
       };
     };
 
@@ -43,6 +43,9 @@
       onCreate = {
         # Example: install JS dependencies from NPM
         # npm-install = "npm install";
+        # Install python dependencies after creating the workspace
+        # Assuming your requirements are in requirements.txt
+        pip-install = "python3 -m pip install -r requirements.txt";
       };
       # Runs when the workspace is (re)started
       onStart = {
