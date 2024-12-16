@@ -46,6 +46,13 @@ def check_winner_endpoint(state: BoardState):
     return winner
 
 
+@router.post("/start_game")
+def start_game():
+    game_state = GameState(board=[None] * 9, current_player="X")
+    # Aquí debes almacenar el estado inicial del juego
+    return game_state
+
+
 # Implementación del tool 'make_move' del agente
 @agent.tool
 def make_move(ctx: RunContext[dict]) -> dict:

@@ -1,5 +1,7 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from game_logic import TicTacToeGame
 from game_agent import router as agent_router
 
@@ -16,6 +18,12 @@ app.add_middleware(
 
 # Include the routes from game_agent.py
 app.include_router(agent_router)
+
+app.mount("/", StaticFiles(directory="../client", html=True), name="client")
+
+@app.get('/favicon.ico', include_in_schema=False)
+async def favicon():
+    return FileResponse('../client/favicon.ico')
 
 @app.websocket("/game")
 async def websocket_endpoint(websocket: WebSocket):
