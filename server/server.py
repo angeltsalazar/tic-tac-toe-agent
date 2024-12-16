@@ -32,5 +32,11 @@ async def websocket_endpoint(websocket: WebSocket):
                         "type": "player_move",
                         "board": game.board
                     })
+            elif data["type"] == "reset_game":
+                game = TicTacToeGame()  # Crear nuevo juego
+                await websocket.send_json({
+                    "type": "game_reset",
+                    "board": game.board
+                })
     except:
         await websocket.close()

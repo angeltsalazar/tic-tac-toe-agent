@@ -15,6 +15,7 @@ class TicTacToeClient {
             this.boardElement.appendChild(cell);
         }
         this.setupEventListeners();
+        this.setupNewGameButton();
 
         this.ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
@@ -34,6 +35,24 @@ class TicTacToeClient {
 
             }
         });
+    }
+
+    setupNewGameButton() {
+        document.getElementById('newGame').addEventListener('click', () => {
+            this.resetGame();
+        });
+    }
+
+    resetGame() {
+        this.board = Array(9).fill(null);
+        this.currentPlayer = 'X';
+        this.gameOver = false;
+        this.updateUI();
+        
+        // Notificar al servidor del reinicio
+        this.ws.send(JSON.stringify({
+            type: "reset_game"
+        }));
     }
 
     async makeMove(position) {
