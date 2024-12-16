@@ -2,19 +2,19 @@
 # see: https://developers.google.com/idx/guides/customize-idx-env
 { pkgs, ... }: {
   # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
+  channel = "stable-24.11"; # or "unstable"
 
   # Use https://search.nixos.org/packages to find packages
-  packages = with pkgs; [
-    python311
-    python311Packages.pip
-    python311Packages.fastapi
-    python311Packages.uvicorn
-    python311Packages.websockets
-    python311Packages.python-socketio
-    python311Packages.numpy
-    python311Packages.python-multipart
-    python311Packages.pydantic
+  packages = [
+    pkgs.python311
+    pkgs.python311Packages.pip
+    pkgs.python311Packages.fastapi
+    pkgs.python311Packages.uvicorn
+    pkgs.python311Packages.websockets
+    pkgs.python311Packages.python-socketio
+    pkgs.python311Packages.numpy
+    pkgs.python311Packages.python-multipart
+    pkgs.python311Packages.pydantic
   ];
 
   # Sets environment variables in the workspace
