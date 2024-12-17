@@ -56,19 +56,49 @@ def start_game():
 # Implementación del tool 'make_move' del agente
 @agent.tool
 def make_move(ctx: RunContext[dict]) -> dict:
-    """Realiza un movimiento en el tablero basado en el estado actual."""
+    """Realiza un movimiento inteligente en el tablero basado en el estado actual."""
     board = ctx.deps.get("board")
     player = ctx.deps.get("current_player")
+    opponent = 'O' if player == 'X' else 'X'
 
     # Lógica para seleccionar la posición
     available_positions = [i for i, spot in enumerate(board) if spot is None]
     if not available_positions:
         return {"error": "No hay movimientos disponibles"}
 
-    # Seleccionar una posición de forma aleatoria (puedes reemplazar con IA)
+    # Función para verificar el estado ganador
+    def can_win(b, p, idx):
+        b_copy = b.copy()
+        b_copy[idx] = p
+        return check_winner(b_copy) == p
+
+    # 1. Verificar si el jugador puede ganar en el siguiente movimiento
+    for pos in available_positions:
+        if can_win(board, player, pos):
+            board[pos] = player
+            return {"position": pos, "player": player, "board": board}
+
+    # 2. Bloquear al oponente si está a punto de ganar
+    for pos in available_positions:
+        if can_win(board, opponent, pos):
+            board[pos] = player
+            return {"position": pos, "player": player, "board": board}
+
+    # 3. Elegir la posición central si está disponible
+    if 4 in available_positions:
+        board[4] = player
+        return {"position": 4, "player": player, "board": board}
+
+    # 4. Elegir una posición en la esquina si está disponible
+    corners = [i for i in [0, 2, 6, 8] if i in available_positions]
+    if corners:
+        selected_position = random.choice(corners)
+        board[selected_position] = player
+        return {"position": selected_position, "player": player, "board": board}
+
+    # 5. Elegir cualquier posición restante al azar
     selected_position = random.choice(available_positions)
     board[selected_position] = player
-
     return {"position": selected_position, "player": player, "board": board}
 
 
