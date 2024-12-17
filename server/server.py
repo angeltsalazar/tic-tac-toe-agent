@@ -19,11 +19,15 @@ app.add_middleware(
 # Include the routes from game_agent.py
 app.include_router(agent_router)
 
-app.mount("/", StaticFiles(directory="../client", html=True), name="client")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
     return FileResponse('../client/favicon.ico')
+
+@app.get('/', include_in_schema=False)
+async def root():
+    return FileResponse('../client/index.html')
 
 @app.websocket("/game")
 async def websocket_endpoint(websocket: WebSocket):
