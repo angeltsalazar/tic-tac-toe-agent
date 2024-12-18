@@ -56,50 +56,56 @@ def start_game():
 # Implementación del tool 'make_move' del agente
 @agent.tool
 def make_move(ctx: RunContext[dict]) -> dict:
-    """Realiza un movimiento inteligente en el tablero basado en el estado actual."""
+    """Realiza un movimiento inteligente en el tablero basado en el algoritmo Minimax."""
     board = ctx.deps.get("board")
     player = ctx.deps.get("current_player")
     opponent = 'O' if player == 'X' else 'X'
 
-    # Lógica para seleccionar la posición
-    available_positions = [i for i, spot in enumerate(board) if spot is None]
-    if not available_positions:
+    # Función Minimax
+    def minimax(board, depth, is_maximizing):
+        winner = check_winner(board)
+        if winner == player:
+            return 1
+        elif winner == opponent:
+            return -1
+        elif all(spot is not None for spot in board):
+            return 0
+
+        if is_maximizing:
+            best_score = -float('inf')
+            for i in range(9):
+                if board[i] is None:
+                    board[i] = player
+                    score = minimax(board, depth + 1, False)
+                    board[i] = None
+                    best_score = max(best_score, score)
+            return best_score
+        else:
+            best_score = float('inf')
+            for i in range(9):
+                if board[i] is None:
+                    board[i] = opponent
+                    score = minimax(board, depth + 1, True)
+                    board[i] = None
+                    best_score = min(best_score, score)
+            return best_score
+
+    best_score = -float('inf')
+    best_move = None
+    for i in range(9):
+        if board[i] is None:
+            board[i] = player
+            score = minimax(board, 0, False)
+            board[i] = None
+            if score > best_score:
+                best_score = score
+                best_move = i
+
+    if best_move is not None:
+        board[best_move] = player
+        return {"position": best_move, "player": player, "board": board}
+    else:
         return {"error": "No hay movimientos disponibles"}
-
-    # Función para verificar el estado ganador
-    def can_win(b, p, idx):
-        b_copy = b.copy()
-        b_copy[idx] = p
-        return check_winner(b_copy) == p
-
-    # 1. Verificar si el jugador puede ganar en el siguiente movimiento
-    for pos in available_positions:
-        if can_win(board, player, pos):
-            board[pos] = player
-            return {"position": pos, "player": player, "board": board}
-
-    # 2. Bloquear al oponente si está a punto de ganar
-    for pos in available_positions:
-        if can_win(board, opponent, pos):
-            board[pos] = player
-            return {"position": pos, "player": player, "board": board}
-
-    # 3. Elegir la posición central si está disponible
-    if 4 in available_positions:
-        board[4] = player
-        return {"position": 4, "player": player, "board": board}
-
-    # 4. Elegir una posición en la esquina si está disponible
-    corners = [i for i in [0, 2, 6, 8] if i in available_positions]
-    if corners:
-        selected_position = random.choice(corners)
-        board[selected_position] = player
-        return {"position": selected_position, "player": player, "board": board}
-
-    # 5. Elegir cualquier posición restante al azar
-    selected_position = random.choice(available_positions)
-    board[selected_position] = player
-    return {"position": selected_position, "player": player, "board": board}
 
 
 # Implementación del tool 'check_winner' del agente

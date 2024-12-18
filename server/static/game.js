@@ -48,7 +48,7 @@ class TicTacToeClient {
         this.currentPlayer = 'X';
         this.gameOver = false;
         this.updateUI();
-        
+
         // Notificar al servidor del reinicio
         this.ws.send(JSON.stringify({
             type: "reset_game"
@@ -71,7 +71,7 @@ class TicTacToeClient {
             }
             return; // Exit early if game is won
         }
-        
+
         const moveData = {
             type: "player_move",
             position: position,
@@ -116,12 +116,15 @@ class TicTacToeClient {
             const agentWinner = await this.checkWinner();
             if (agentWinner) {
                 this.gameOver = true;
-                if (agentWinner == "Tie") {
-                    alert(`The game is a ${agentWinner}!`);
-                } else {
-                    alert(`Player ${agentWinner} wins!`);
-                }
 
+                // Para permitir que el tablero se refresque antes de mostrar el mensaje
+                setTimeout(() => {
+                    if (agentWinner == "Tie") {
+                        alert(`The game is a ${agentWinner}!`);
+                    } else {
+                        alert(`Player ${agentWinner} wins!`);
+                    }
+                }, 50); // milisegundos
             }
         } catch (error) {
             console.error('Error fetching agent move', error);
