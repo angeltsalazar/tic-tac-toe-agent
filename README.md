@@ -30,8 +30,11 @@
 
 1. Start the FastAPI server
 - Open a terminal and navigate to the project directory.
-    - cd server    
+    - cd /Volumes/SSDWD2T/projects/tic-tac-toe-agent/server
+
 - Run the following command to start the FastAPI server:
+    - conda activate frame_pydanticai
     - uvicorn server:app --reload
 
 2. Open client/index.html: Open the HTML file in your web browser.
+    - http://localhost:8000

@@ -2,14 +2,23 @@
 <html>
 <head>
     <title>Tic Tac Toe</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="http://localhost:8000/static/styles.css">
 </head>
 <body>
-    <div class="game-board">
-        <div class="cell" data-index="0"></div>
-        <!-- ... more cells ... -->
+    <div>
+        <label for="boardSize">Board Size:</label>
+        <select id="boardSize">
+            <option value="3">3x3</option>
+            <option value="4">4x4</option>
+            <option value="5">5x5</option>
+            <option value="6">6x6</option>
+            <option value="7">7x7</option>
+            <option value="8">8x8</option>
+            <option value="9">9x9</option>
+        </select>
     </div>
+    <div class="game-board"></div>
     <button id="newGame" class="new-game-btn">New Game</button>
-    <script src="/static/game.js"></script>
+    <script src="http://localhost:8000/static/game.js"></script>
 </body>
 </html>

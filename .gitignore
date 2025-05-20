@@ -26,3 +26,6 @@ ENV/
 dist/
 build/
 *.egg-info/
+
+# Secret key for web UI
+server/.webui_secret_key

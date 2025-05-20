@@ -18,12 +18,14 @@ agent = Agent(
 
 # Modelo de datos para el estado del juego
 class GameState(BaseModel):
-    board: List[Optional[str]]  # Representación del tablero como lista de 9 elementos
+    board: List[Optional[str]]  # Representación del tablero como lista de elementos
     current_player: str  # 'X' o 'O'
+    size: int  # Tamaño del tablero
 
 
 class BoardState(BaseModel):
     board: List[Optional[str]]
+    size: int  # Tamaño del tablero
 
 
 # Definición de la aplicación FastAPI
@@ -42,13 +44,13 @@ def make_move_endpoint(state: GameState):
 @router.post("/check_winner")
 def check_winner_endpoint(state: BoardState):
     """Verifica si hay un ganador en el estado actual del tablero."""
-    winner = check_winner(state.board)
+    winner = check_winner(state.board, state.size)
     return winner
 
 
 @router.post("/start_game")
 def start_game():
-    game_state = GameState(board=[None] * 9, current_player="X")
+    game_state = GameState(board=[None] * 9, current_player="X", size=3)
     # Aquí debes almacenar el estado inicial del juego
     return game_state
 
@@ -59,11 +61,15 @@ def make_move(ctx: RunContext[dict]) -> dict:
     """Realiza un movimiento inteligente en el tablero basado en el algoritmo Minimax."""
     board = ctx.deps.get("board")
     player = ctx.deps.get("current_player")
+    size = ctx.deps.get("size", 3)  # Tamaño del tablero, por defecto 3
+    if len(board) < size * size:
+        raise ValueError(f"El board debe tener al menos {size*size} posiciones, tiene {len(board)}.")
+
     opponent = 'O' if player == 'X' else 'X'
 
     # Función Minimax
     def minimax(board, depth, is_maximizing):
-        winner = check_winner(board)
+        winner = check_winner(board, size)
         if winner == player:
             return 1
         elif winner == opponent:
@@ -73,7 +79,7 @@ def make_move(ctx: RunContext[dict]) -> dict:
 
         if is_maximizing:
             best_score = -float('inf')
-            for i in range(9):
+            for i in range(size * size):
                 if board[i] is None:
                     board[i] = player
                     score = minimax(board, depth + 1, False)
@@ -82,7 +88,7 @@ def make_move(ctx: RunContext[dict]) -> dict:
             return best_score
         else:
             best_score = float('inf')
-            for i in range(9):
+            for i in range(size * size):
                 if board[i] is None:
                     board[i] = opponent
                     score = minimax(board, depth + 1, True)
@@ -92,7 +98,7 @@ def make_move(ctx: RunContext[dict]) -> dict:
 
     best_score = -float('inf')
     best_move = None
-    for i in range(9):
+    for i in range(size * size):
         if board[i] is None:
             board[i] = player
             score = minimax(board, 0, False)
@@ -110,24 +116,25 @@ def make_move(ctx: RunContext[dict]) -> dict:
 
 # Implementación del tool 'check_winner' del agente
 @agent.tool_plain
-def check_winner(board: List[Optional[str]]) -> Optional[str]:
+def check_winner(board: List[Optional[str]], size: int) -> Optional[str]:
     """Verifica si hay un ganador en el tablero."""
     # Combinaciones ganadoras
-    winning_combinations = [
-        (0, 1, 2),
-        (3, 4, 5),
-        (6, 7, 8),  # Horizontales
-        (0, 3, 6),
-        (1, 4, 7),
-        (2, 5, 8),  # Verticales
-        (0, 4, 8),
-        (2, 4, 6),  # Diagonales
-    ]
+    winning_combinations = []
+
+    # Horizontales y verticales
+    for i in range(size):
+        # Horizontales
+        winning_combinations.append([i * size + j for j in range(size)])
+        # Verticales
+        winning_combinations.append([j * size + i for j in range(size)])
+
+    # Diagonales
+    winning_combinations.append([i * size + i for i in range(size)])
+    winning_combinations.append([i * size + (size - 1 - i) for i in range(size)])
 
     for combo in winning_combinations:
-        a, b, c = combo
-        if board[a] == board[b] == board[c] and board[a] is not None:
-            return board[a]  # Retorna 'X' o 'O' como ganador
+        if all(board[pos] == board[combo[0]] and board[pos] is not None for pos in combo):
+            return board[combo[0]]  # Retorna 'X' o 'O' como ganador
 
     if all(spot is not None for spot in board):
         return "Tie"  # Empate
