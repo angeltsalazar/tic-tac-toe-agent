@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from game_logic import TicTacToeGame
-from game_agent import router as agent_router, make_move_endpoint, check_winner
+from game_agent import router as agent_router, make_move_endpoint, check_winner, GameState # Added GameState import
 import json
 import logging
 
@@ -95,11 +95,13 @@ async def websocket_endpoint(websocket: WebSocket, size: int = Query(3, ge=3, le
                     # Get agent's move si el juego no ha terminado
                     if not game.game_over:
                         logger.info("Solicitando movimiento del agente...")
-                        agent_response = make_move_endpoint({
-                            "board": game.board,
-                            "current_player": game.current_player,
-                            "size": game.size
-                        })
+                        # Create GameState instance for the agent
+                        game_state_for_agent = GameState(
+                            board=game.board,
+                            current_player=game.current_player,
+                            size=game.size
+                        )
+                        agent_response = make_move_endpoint(game_state_for_agent)
                         
                         if "position" in agent_response:
                             agent_position = agent_response["position"]
@@ -160,4 +162,7 @@ async def websocket_endpoint(websocket: WebSocket, size: int = Query(3, ge=3, le
     finally:
         if websocket in games:
             del games[websocket]
-        await websocket.close()
+        try:
+            await websocket.close()
+        except RuntimeError:
+            logger.info("WebSocket already closed when attempting to close in finally.")

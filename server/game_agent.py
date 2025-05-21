@@ -61,57 +61,87 @@ def make_move(ctx: RunContext[dict]) -> dict:
     """Realiza un movimiento inteligente en el tablero basado en el algoritmo Minimax."""
     board = ctx.deps.get("board")
     player = ctx.deps.get("current_player")
-    size = ctx.deps.get("size", 3)  # Tamaño del tablero, por defecto 3
-    if len(board) < size * size:
-        raise ValueError(f"El board debe tener al menos {size*size} posiciones, tiene {len(board)}.")
+    size = ctx.deps.get("size", 3)
+    if len(board) != size * size: # Ensure board is exactly size*size
+        raise ValueError(f"El board debe tener {size*size} posiciones, tiene {len(board)}.")
 
     opponent = 'O' if player == 'X' else 'X'
 
+    # Determine max_depth based on board size
+    if size == 3:
+        max_search_depth = 9  # Full search for 3x3
+    elif size == 4:
+        max_search_depth = 3  # Limit depth for 4x4 (4-ply total: AI -> Opp -> AI -> Opp)
+    elif size == 5:
+        max_search_depth = 2  # Limit depth for 5x5 (3-ply total)
+    else:  # size > 5
+        max_search_depth = 1  # Limit depth for larger boards (2-ply total)
+
     # Función Minimax
-    def minimax(board, depth, is_maximizing):
-        winner = check_winner(board, size)
+    def minimax(current_board, current_depth, is_maximizing_player):
+        winner = check_winner(current_board, size)
         if winner == player:
-            return 1
+            return 10 - current_depth  # Prioritize faster wins
         elif winner == opponent:
-            return -1
-        elif all(spot is not None for spot in board):
-            return 0
+            return current_depth - 10  # Prioritize opponent losing faster (AI delays loss)
+        elif all(spot is not None for spot in current_board):
+            return 0  # Tie
 
-        if is_maximizing:
-            best_score = -float('inf')
+        if current_depth >= max_search_depth:
+            return 0  # Depth limit reached, return neutral score (heuristic could be improved)
+
+        if is_maximizing_player:  # AI's (player's) turn
+            best_score_val = -float('inf')
             for i in range(size * size):
-                if board[i] is None:
-                    board[i] = player
-                    score = minimax(board, depth + 1, False)
-                    board[i] = None
-                    best_score = max(best_score, score)
-            return best_score
-        else:
-            best_score = float('inf')
+                if current_board[i] is None:
+                    current_board[i] = player
+                    score_val = minimax(current_board, current_depth + 1, False)
+                    current_board[i] = None  # Backtrack
+                    best_score_val = max(best_score_val, score_val)
+            return best_score_val
+        else:  # Opponent's turn
+            best_score_val = float('inf')
             for i in range(size * size):
-                if board[i] is None:
-                    board[i] = opponent
-                    score = minimax(board, depth + 1, True)
-                    board[i] = None
-                    best_score = min(best_score, score)
-            return best_score
+                if current_board[i] is None:
+                    current_board[i] = opponent
+                    score_val = minimax(current_board, current_depth + 1, True)
+                    current_board[i] = None  # Backtrack
+                    best_score_val = min(best_score_val, score_val)
+            return best_score_val
 
-    best_score = -float('inf')
-    best_move = None
-    for i in range(size * size):
-        if board[i] is None:
-            board[i] = player
-            score = minimax(board, 0, False)
-            board[i] = None
-            if score > best_score:
-                best_score = score
-                best_move = i
+    best_overall_score = -float('inf')
+    best_move_idx = -1
 
-    if best_move is not None:
-        board[best_move] = player
-        return {"position": best_move, "player": player, "board": board}
+    possible_empty_spots = [i for i, spot in enumerate(board) if spot is None]
+
+    if not possible_empty_spots:
+        return {"error": "No hay movimientos disponibles, tablero lleno."}
+
+    random.shuffle(possible_empty_spots) # Shuffle for variety if scores are tied
+
+    for move_idx in possible_empty_spots:
+        board[move_idx] = player  # Make the hypothetical move
+        # Call minimax for the opponent's turn (is_maximizing_player=False)
+        # current_depth is 0 for the first level of minimax recursion
+        current_score = minimax(board, 0, False)
+        board[move_idx] = None  # Backtrack the hypothetical move
+
+        if current_score > best_overall_score:
+            best_overall_score = current_score
+            best_move_idx = move_idx
+    
+    # If best_move_idx remained -1, it means all moves resulted in -inf or possible_empty_spots was empty.
+    # However, if possible_empty_spots was not empty, best_move_idx will be set to at least the first shuffled move.
+    # This check ensures a move is made if available, even if all evaluated scores are -inf (e.g. forced loss)
+    if best_move_idx == -1 and possible_empty_spots:
+        best_move_idx = possible_empty_spots[0] # Fallback to the first available (shuffled)
+
+    if best_move_idx != -1:
+        board[best_move_idx] = player  # Apply the chosen move to the actual board
+        return {"position": best_move_idx, "player": player, "board": board}
     else:
-        return {"error": "No hay movimientos disponibles"}
+        # This path should ideally not be reached if there were available spots.
+        return {"error": "No se pudo determinar un movimiento válido."}
 
 
 # Implementación del tool 'check_winner' del agente

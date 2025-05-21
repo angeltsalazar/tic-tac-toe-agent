@@ -2,7 +2,7 @@ class TicTacToeGame:
     def __init__(self, size=3, board=None, current_player='X'):
         self.size = size
         self.board = board if board is not None else [None for _ in range(size * size)]
-        self.current_player = current_player
+        self.current_player = current_player if current_player is not None else 'X' # Ensure current_player defaults to 'X'
         self.last_move = None
         self.moves_history = []
         self.game_over = False
