@@ -1,3 +1,57 @@
+# 🎮 Tic-Tac-Toe con IA Agent
+
+## ⚠️ CONFIGURACIÓN PARA GITHUB CODESPACES
+
+**Si el tablero no aparece, lee:** [`CODESPACES-SETUP.md`](CODESPACES-SETUP.md)
+
+### 🚀 Inicio Rápido en Codespaces
+
+#### 🌐 Obtener TU URL específica:
+
+**Método 1 - Comando automático:**
+```bash
+echo "🌐 TU URL: https://${CODESPACE_NAME}-8000.app.github.dev/"
+```
+
+**Método 2 - Script completo:**
+```bash
+./start-game.sh
+```
+
+**Método 3 - Panel PORTS:**
+- Ve al panel "PORTS" en la parte inferior de VS Code
+- Haz clic en el ícono 🌐 del puerto `8000`
+
+#### 📝 Patrón de URLs de GitHub Codespaces:
+```
+https://[tu-codespace-name]-8000.app.github.dev/
+```
+
+**Ejemplos de URLs reales:**
+- `https://super-duper-space-fortnight-w5ww5xqrwhwx9-8000.app.github.dev/`
+- `https://magical-enigma-abc123xyz-8000.app.github.dev/`
+- `https://friendly-invention-def456-8000.app.github.dev/`
+
+#### 🚀 Pasos:
+
+1. **Iniciar servidor:**
+   ```bash
+   cd server && python server.py
+   ```
+
+2. **Obtener tu URL y abrir en navegador:**
+   ```bash
+   # Esto te dará la URL exacta para TU Codespace:
+   echo "https://${CODESPACE_NAME}-8000.app.github.dev/"
+   ```
+
+3. **⚠️ Recordatorios importantes:**
+   - ✅ **USA** la URL de Codespaces
+   - ❌ **NO uses** `localhost:8000` (no funciona en Codespaces)
+   - 🔄 La URL es **única** para cada Codespace
+
+---
+
 # Características principales:
 ## 1. Arquitectura WebSocket 
 - para comunicación en tiempo real
@@ -38,3 +92,98 @@
 
 2. Open client/index.html: Open the HTML file in your web browser.
     - http://localhost:8000
+
+## 📚 Documentación y Ayuda Disponible
+
+### 🚀 Comandos Rápidos:
+- **`./show-url.sh`** - Muestra tu URL específica al instante
+- **`./start-game.sh`** - Detecta URL e inicia servidor automáticamente
+
+### 📖 Archivos de Documentación:
+- **[CODESPACES-SETUP.md](CODESPACES-SETUP.md)** - Guía completa de configuración para GitHub Codespaces
+- **[URL-HELPER.md](URL-HELPER.md)** - Cómo encontrar tu URL específica de Codespaces  
+- **[url-guide.html](url-guide.html)** - Página web interactiva para detectar tu URL
+
+### 🐛 Debugging y Pruebas:
+- **[debug.html](debug.html)** - Página de debugging con logs detallados
+- **[test-forced.html](test-forced.html)** - Test del tablero forzado
+- **[test-gameover.html](test-gameover.html)** - Test de mensajes de victoria
+- **[test-reset.html](test-reset.html)** - Test de funcionalidad reset
+
+### 🆘 Solución de Problemas (en orden):
+
+| Problema | Solución |
+|----------|----------|
+| 🤔 "¿Cuál es mi URL?" | Ejecuta `./show-url.sh` |
+| 📱 "El tablero no aparece" | Lee `CODESPACES-SETUP.md` |
+| 🔗 "Error de conexión WebSocket" | Usa `debug.html` |
+| 🔄 "El botón reset no funciona" | Usa `test-reset.html` |
+| 🏆 "No veo mensajes de victoria" | Usa `test-gameover.html` |
+
+### ⚡ Inicio Ultra-Rápido:
+```bash
+# Un solo comando para todo:
+./start-game.sh
+
+# O si solo quieres la URL:
+./show-url.sh
+```
+
+## 📊 Monitoreo de Rendimiento del Sistema
+
+### 🎯 ¿Quieres monitorear CPU, memoria, GPU mientras juegas?
+
+**📖 Guía completa:** [`MONITOREO-GUIA.md`](MONITOREO-GUIA.md)
+
+#### ⚡ Comandos Rápidos de Monitoreo:
+
+```bash
+# Monitor visual en tiempo real (RECOMENDADO)
+./monitor-visual.sh
+
+# Benchmark automático (reposo vs uso)
+./benchmark-report.sh
+
+# Monitor completo del sistema
+./monitor-system.sh
+
+# Monitor avanzado con herramientas especializadas
+./monitor-advanced.sh
+
+# Monitor de latencia del teclado (diagnosticar lentitud)
+./monitor-latency.sh
+```
+
+#### 📊 Qué se Monitorea:
+- **🔥 CPU:** Uso del procesador durante el juego
+- **🧠 Memoria:** Consumo de RAM por el servidor y la IA
+- **🎮 GPU:** Uso de tarjeta gráfica (si está disponible)
+- **🌐 Red:** Conexiones WebSocket del juego
+- **🐍 Servidor Python:** Rendimiento del backend
+- **🤖 Ollama:** Uso de recursos por la IA
+- **⌨️ Latencia:** Diagnóstico de respuesta lenta del teclado
+
+#### 🎯 Casos de Uso:
+- **Modo Visual:** Monitor en tiempo real con interfaz bonita
+- **Modo Benchmark:** Reporte profesional HTML con gráficos
+- **Modo Análisis:** Comparación reposo vs uso del juego
+- **Modo Debugging:** Logs detallados para troubleshooting
+- **Diagnóstico de Latencia:** Solucionar teclado lento en VS Code
+
+#### ⌨️ ¿Teclado Lento?
+Si sientes que VS Code responde lento al escribir:
+```bash
+# Diagnóstico automático y solución
+./monitor-latency.sh --clean
+
+# Monitor en tiempo real de latencia  
+./monitor-latency.sh
+```
+
+#### 📈 Métricas Típicas Durante el Juego:
+- CPU: 10-30% (picos durante decisiones de IA)
+- Memoria: +100-500MB adicionales
+- Conexiones: 1-2 WebSocket activas
+- Procesos: Python server + Ollama ejecutándose
+
+**💡 Tip:** Ejecuta `./monitor-visual.sh` en una ventana separada mientras juegas para ver el impacto en tiempo real.

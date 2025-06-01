@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reset Functionality</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        button {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-gap: 5px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        
+        .cell {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .cell:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.05);
+        }
+
+        .cell.waiting {
+            background-color: #eee;
+            cursor: not-allowed;
+        }
+        
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Reset Functionality</h1>
+        
+        <div class="test-section">
+            <h3>Simulación de Estado de Juego</h3>
+            <button onclick="simulateGameInProgress()">Simular Juego en Progreso</button>
+            <button onclick="simulateGameOver()">Simular Juego Terminado</button>
+            <button onclick="testReset()">🆕 Test Reset Game</button>
+        </div>
+        
+        <div id="status" class="status connected">Test ready</div>
+        <div id="aiStatus" class="status">AI Status: Test mode</div>
+        
+        <div class="game-board" id="testBoard">
+            <div class="cell" onclick="cellClick(0)"></div>
+            <div class="cell" onclick="cellClick(1)"></div>
+            <div class="cell" onclick="cellClick(2)"></div>
+            <div class="cell" onclick="cellClick(3)"></div>
+            <div class="cell" onclick="cellClick(4)"></div>
+            <div class="cell" onclick="cellClick(5)"></div>
+            <div class="cell" onclick="cellClick(6)"></div>
+            <div class="cell" onclick="cellClick(7)"></div>
+            <div class="cell" onclick="cellClick(8)"></div>
+        </div>
+        
+        <div class="debug-log" id="debugLog">
+            <strong>Debug Log:</strong><br>
+        </div>
+    </div>
+    
+    <script>
+        const debugLog = document.getElementById('debugLog');
+        const statusElement = document.getElementById('status');
+        const aiStatusElement = document.getElementById('aiStatus');
+        const boardElement = document.getElementById('testBoard');
+        
+        let testBoard = Array(9).fill(null);
+        let testCurrentPlayer = 'X';
+        let testGameOver = false;
+        
+        function addToDebugLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : (type === 'success' ? 'green' : 'black');
+            debugLog.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        function updateStatusMessage(message, type = 'connected') {
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            addToDebugLog(`Status: ${message}`);
+        }
+        
+        function updateAIStatus(message) {
+            aiStatusElement.textContent = message;
+            addToDebugLog(`AI Status: ${message}`);
+        }
+        
+        function updateTestUI() {
+            addToDebugLog('🎨 Actualizando interfaz de usuario');
+            boardElement.querySelectorAll('.cell').forEach((cell, index) => {
+                const value = testBoard[index];
+                
+                // Limpiar completamente la celda primero
+                cell.textContent = '';
+                cell.style.color = '#333';
+                cell.style.backgroundColor = 'white';
+                cell.style.cursor = 'pointer';
+                cell.classList.remove('waiting');
+                
+                // Aplicar el estado actual
+                if (value === 'X') {
+                    cell.textContent = '❌';
+                    cell.style.color = '#e74c3c';
+                    cell.style.backgroundColor = '#f8f9fa';
+                    cell.style.cursor = 'not-allowed';
+                } else if (value === 'O') {
+                    cell.textContent = '⭕';
+                    cell.style.color = '#3498db';
+                    cell.style.backgroundColor = '#f8f9fa';
+                    cell.style.cursor = 'not-allowed';
+                }
+            });
+        }
+        
+        function simulateGameInProgress() {
+            addToDebugLog('🎮 Simulando juego en progreso...', 'log');
+            testBoard = ['X', 'O', null, 'X', null, 'O', null, null, null];
+            testCurrentPlayer = 'X';
+            testGameOver = false;
+            updateStatusMessage('🎮 Juego en progreso - Turno de X', 'connected');
+            updateAIStatus('🤖 IA activa');
+            updateTestUI();
+        }
+        
+        function simulateGameOver() {
+            addToDebugLog('🏁 Simulando juego terminado...', 'log');
+            testBoard = ['X', 'X', 'X', 'O', 'O', null, null, null, null];
+            testCurrentPlayer = null;
+            testGameOver = true;
+            updateStatusMessage('🏁 Juego terminado - ¡X ganó!', 'connected');
+            updateAIStatus('🎯 Juego finalizado');
+            updateTestUI();
+        }
+        
+        function testReset() {
+            addToDebugLog('🔄 Iniciando test de reset...', 'success');
+            
+            // Simular la función resetGame
+            addToDebugLog('🔄 Reiniciando juego 3x3');
+            
+            // Limpiar todo el estado del juego
+            testBoard = Array(9).fill(null);
+            testCurrentPlayer = 'X';
+            testGameOver = false;
+            
+            // Limpiar mensajes de estado
+            updateStatusMessage('🟡 Iniciando nuevo juego...', 'connected');
+            updateAIStatus('Verificando IA...');
+            
+            // Actualizar UI
+            updateTestUI();
+            
+            addToDebugLog('✅ Estado del juego limpiado completamente', 'success');
+            
+            // Simular respuesta del servidor
+            setTimeout(() => {
+                addToDebugLog('📩 Simulando respuesta del servidor...');
+                updateStatusMessage('🟢 Nuevo juego iniciado', 'connected');
+                updateAIStatus('🤖 IA lista');
+                addToDebugLog('✅ Reset completado exitosamente', 'success');
+            }, 1000);
+        }
+        
+        function cellClick(index) {
+            addToDebugLog(`🖱️ Click en celda ${index}`);
+            if (testGameOver) {
+                addToDebugLog('🚫 Juego terminado', 'error');
+                return;
+            }
+            if (testBoard[index] !== null) {
+                addToDebugLog('🚫 Celda ocupada', 'error');
+                return;
+            }
+            
+            testBoard[index] = testCurrentPlayer;
+            testCurrentPlayer = testCurrentPlayer === 'X' ? 'O' : 'X';
+            updateTestUI();
+            addToDebugLog(`✅ Movimiento realizado, turno de ${testCurrentPlayer}`);
+        }
+        
+        addToDebugLog('🚀 Test page loaded - Use buttons to test reset functionality');
+    </script>
+</body>
+</html>

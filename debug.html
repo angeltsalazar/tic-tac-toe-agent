@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tic Tac Toe con IA</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>Debug Tic Tac Toe con IA</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +11,7 @@
         }
         
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             text-align: center;
             background: white;
@@ -112,11 +111,24 @@
             background-color: #fff3e0;
             color: #f57c00;
         }
+        
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Tic Tac Toe con IA 🤖</h1>
+        <h1>🎮 Debug Tic Tac Toe con IA 🤖</h1>
         
         <div class="controls">
             <label for="boardSize">Tamaño del tablero:</label>
@@ -133,6 +145,10 @@
         <div class="game-board"></div>
         <button id="newGame" class="new-game-btn">🆕 Nuevo Juego</button>
         
+        <div class="debug-log" id="debugLog">
+            <strong>Debug Log:</strong><br>
+        </div>
+        
         <div style="margin-top: 30px; font-size: 14px; color: #666;">
             <p><strong>Instrucciones:</strong></p>
             <p>• Tú juegas con ❌ (X)</p>
@@ -140,6 +156,32 @@
             <p>• Haz clic en una casilla para hacer tu movimiento</p>
         </div>
     </div>
+    
+    <script>
+        // Override console.log to show logs on page
+        const debugLog = document.getElementById('debugLog');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function addToDebugLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : 'black';
+            debugLog.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToDebugLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addToDebugLog(args.join(' '), 'error');
+        };
+        
+        console.log('🔧 Debug version loaded');
+    </script>
     
     <script src="/static/game.js"></script>
 </body>

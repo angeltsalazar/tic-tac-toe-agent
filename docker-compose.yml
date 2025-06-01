@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  tic-tac-toe:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=localhost
+      - OLLAMA_PORT=11434
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  ollama_models:

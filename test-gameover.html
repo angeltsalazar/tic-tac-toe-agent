@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Game Over Message</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Game Over Messages</h1>
+        
+        <button onclick="testXWins()">Test: X Wins</button>
+        <button onclick="testOWins()">Test: O Wins</button>
+        <button onclick="testTie()">Test: Tie</button>
+        
+        <div class="debug-log" id="debugLog">
+            <strong>Debug Log:</strong><br>
+        </div>
+    </div>
+    
+    <script>
+        const debugLog = document.getElementById('debugLog');
+        
+        function addToDebugLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : 'black';
+            debugLog.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        // Override console para mostrar en pantalla
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToDebugLog(args.join(' '), 'log');
+        };
+        
+        function simulateGameOverMessage(winner, aiUsed = true) {
+            const message = {
+                type: "game_over",
+                winner: winner,
+                ai_used: aiUsed
+            };
+            
+            console.log("🧪 Simulando mensaje game_over:", JSON.stringify(message));
+            
+            // Simular el manejo del mensaje como en el juego real
+            handleGameOverMessage(message);
+        }
+        
+        function handleGameOverMessage(message) {
+            console.log("🏁 Mensaje de fin de juego recibido:", message);
+            
+            let winMessage = '';
+            if (message.winner === "Tie") {
+                winMessage = "🤝 ¡Empate!";
+            } else if (message.winner === "X") {
+                winMessage = "🎉 ¡Ganaste! (X)";
+            } else if (message.winner === "O") {
+                winMessage = "🤖 ¡La IA ganó! (O)";
+            }
+            
+            console.log("🏆 Mostrando mensaje de victoria:", winMessage);
+            const aiType = message.ai_used ? 'Ollama' : (message.ai_used === false ? 'Minimax' : 'N/A');
+            
+            // Mostrar el mensaje
+            const fullMessage = `${winMessage}\\n\\nIA utilizada: ${aiType}`;
+            console.log("📢 Mensaje completo:", fullMessage);
+            alert(fullMessage);
+        }
+        
+        function testXWins() {
+            simulateGameOverMessage("X", true);
+        }
+        
+        function testOWins() {
+            simulateGameOverMessage("O", false);
+        }
+        
+        function testTie() {
+            simulateGameOverMessage("Tie", true);
+        }
+        
+        console.log("🚀 Test page loaded - Click buttons to test game over messages");
+    </script>
+</body>
+</html>

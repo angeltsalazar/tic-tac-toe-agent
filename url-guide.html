@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Tic-Tac-Toe con IA - Guía de URL</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .url-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .warning-box {
+            background: rgba(255, 193, 7, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #FFC107;
+        }
+        .error-box {
+            background: rgba(244, 67, 54, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #F44336;
+        }
+        .success-box {
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        .btn {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .auto-url {
+            font-size: 18px;
+            font-weight: bold;
+            word-break: break-all;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Tic-Tac-Toe con IA</h1>
+        <h2>🌐 Configuración de URL para GitHub Codespaces</h2>
+
+        <div class="success-box">
+            <h3>✅ Tu URL específica de Codespaces:</h3>
+            <div class="url-box">
+                <div class="auto-url" id="gameUrl">Detectando...</div>
+            </div>
+            <p>👆 <strong>Esta es la URL que debes usar para acceder al juego</strong></p>
+        </div>
+
+        <div class="warning-box">
+            <h3>⚠️ Importante:</h3>
+            <ul>
+                <li><strong>NO uses</strong> <code>localhost:8000</code> - no funciona en GitHub Codespaces</li>
+                <li><strong>SÍ usa</strong> la URL de arriba que termina en <code>.app.github.dev</code></li>
+                <li>La URL es <strong>única</strong> para tu Codespace específico</li>
+            </ul>
+        </div>
+
+        <h3>🚀 Pasos para jugar:</h3>
+        
+        <div class="step">
+            <h4>1️⃣ Verificar que el servidor esté funcionando</h4>
+            <p>En la terminal deberías ver algo como:</p>
+            <code>INFO: Uvicorn running on http://0.0.0.0:8000</code>
+        </div>
+
+        <div class="step">
+            <h4>2️⃣ Acceder al juego</h4>
+            <p>Copia la URL verde de arriba y pégala en una nueva pestaña del navegador</p>
+            <a href="#" class="btn" id="openGameBtn">🎮 Abrir Juego en Nueva Pestaña</a>
+        </div>
+
+        <div class="step">
+            <h4>3️⃣ ¿Problemas?</h4>
+            <p>Si el tablero no aparece:</p>
+            <ul>
+                <li>Verifica que uses la URL correcta (la verde de arriba)</li>
+                <li>Asegúrate que el servidor esté ejecutándose</li>
+                <li>Revisa la consola del navegador (F12) para errores</li>
+            </ul>
+        </div>
+
+        <h3>📚 Documentación adicional:</h3>
+        <ul>
+            <li><strong>CODESPACES-SETUP.md</strong> - Guía completa de configuración</li>
+            <li><strong>URL-HELPER.md</strong> - Más detalles sobre URLs de Codespaces</li>
+            <li><strong>debug.html</strong> - Página de debugging</li>
+        </ul>
+
+        <div class="error-box">
+            <h4>🐛 Si nada funciona:</h4>
+            <p>Ejecuta en la terminal:</p>
+            <code>./start-game.sh</code>
+            <p>Esto te dará la URL correcta y reiniciará el servidor.</p>
+        </div>
+    </div>
+
+    <script>
+        // Detectar automáticamente la URL de Codespaces
+        function detectGameUrl() {
+            const hostname = window.location.hostname;
+            let gameUrl;
+            
+            if (hostname.includes('app.github.dev')) {
+                // Estamos en GitHub Codespaces
+                const host = window.location.host;
+                // Reemplazar el puerto actual con 8000
+                const baseHost = host.split('-')[0]; // nombre del codespace
+                gameUrl = `https://${baseHost}-8000.app.github.dev/`;
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                // Desarrollo local
+                gameUrl = 'http://localhost:8000/';
+            } else {
+                gameUrl = 'URL no detectada automáticamente';
+            }
+            
+            return gameUrl;
+        }
+
+        // Actualizar la página con la URL detectada
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameUrl = detectGameUrl();
+            const urlElement = document.getElementById('gameUrl');
+            const openBtn = document.getElementById('openGameBtn');
+            
+            urlElement.textContent = gameUrl;
+            
+            if (gameUrl !== 'URL no detectada automáticamente') {
+                openBtn.href = gameUrl;
+                openBtn.onclick = function() {
+                    window.open(gameUrl, '_blank');
+                    return false;
+                };
+            } else {
+                openBtn.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

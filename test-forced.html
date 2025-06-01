@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Forced Board</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Test Forced Board Creation</h1>
+        
+        <div class="status">Este test fuerza la creación del tablero con estilos inline</div>
+        
+        <div class="game-board">
+            <!-- El tablero se creará aquí -->
+        </div>
+        
+        <div class="debug-log" id="debugLog">
+            <strong>Debug Log:</strong><br>
+        </div>
+        
+        <div style="margin-top: 20px; font-size: 14px; color: #666;">
+            <p><strong>Debug Info:</strong></p>
+            <p>• Este test debe mostrar un tablero con borde rojo</p>
+            <p>• Las celdas deben tener números y algunos símbolos</p>
+            <p>• Haz clic en cualquier celda para alternar contenido</p>
+        </div>
+    </div>
+    
+    <script>
+        // Override console.log to show logs on page
+        const debugLog = document.getElementById('debugLog');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function addToDebugLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : 'black';
+            debugLog.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToDebugLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addToDebugLog(args.join(' '), 'error');
+        };
+        
+        console.log('🔧 Forced test page loaded');
+    </script>
+    
+    <script src="/static/game-forced.js"></script>
+</body>
+</html>

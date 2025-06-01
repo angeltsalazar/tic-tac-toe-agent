@@ -1,20 +1,13 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from pydantic_ai import Agent, RunContext
 from typing import Optional, List
-import random
+import logging
+import asyncio
 
-# Definición del agente
-agent = Agent(
-    "groq:llama-3.3-70b-versatile",
-    deps_type=dict,
-    system_prompt=(
-        "You're a Tic-tac-toe game agent. You analyze the board state "
-        "and make strategic moves. You should try to win while also "
-        "blocking the opponent from winning."
-    ),
-)
+# Importar nuestro cliente Ollama personalizado
+from ollama_integration import tic_tac_toe_ai, ollama_client
 
+logger = logging.getLogger(__name__)
 
 # Modelo de datos para el estado del juego
 class GameState(BaseModel):
@@ -32,45 +25,71 @@ class BoardState(BaseModel):
 router = APIRouter()
 
 
-# Ruta para hacer un movimiento
+# Rutas de la API
 @router.post("/make_move")
-def make_move_endpoint(state: GameState):
-    """Realiza un movimiento basado en el estado actual del tablero."""
-    ctx = RunContext(deps=state.model_dump(), retry=0)
-    result = make_move(ctx)
-    return result
-
+async def make_move_api(state: GameState):
+    """Endpoint para realizar un movimiento usando IA o Minimax."""
+    try:
+        # Usar el agente de IA con Ollama
+        position = await tic_tac_toe_ai.make_move(state.board, state.current_player)
+        
+        if position == -1:
+            return {"error": "No hay movimientos disponibles"}
+        
+        # Crear tablero actualizado
+        new_board = state.board.copy()
+        new_board[position] = state.current_player
+        
+        return {
+            "position": position,
+            "player": state.current_player,
+            "board": new_board,
+            "used_ai": await ollama_client.is_available()
+        }
+    except Exception as e:
+        logger.error(f"Error en make_move_api: {e}")
+        return {"error": str(e)}
 
 @router.post("/check_winner")
-def check_winner_endpoint(state: BoardState):
-    """Verifica si hay un ganador en el estado actual del tablero."""
+async def check_winner_api(state: BoardState):
+    """Endpoint para verificar si hay un ganador."""
     winner = check_winner(state.board, state.size)
-    return winner
-
+    return {"winner": winner}
 
 @router.post("/start_game")
-def start_game():
+async def start_game():
+    """Endpoint para iniciar un nuevo juego."""
     game_state = GameState(board=[None] * 9, current_player="X", size=3)
-    # Aquí debes almacenar el estado inicial del juego
     return game_state
 
+@router.get("/ai_status")
+async def ai_status():
+    """Endpoint para verificar el estado del sistema de IA."""
+    ollama_available = await ollama_client.is_available()
+    models = await ollama_client.list_models() if ollama_available else []
+    
+    return {
+        "ollama_available": ollama_available,
+        "models": models,
+        "fallback": "minimax" if not ollama_available else None
+    }
 
-# Implementación del tool 'make_move' del agente
-@agent.tool
-def make_move(ctx: RunContext[dict]) -> dict:
-    """Realiza un movimiento inteligente en el tablero basado en el algoritmo Minimax."""
-    board = ctx.deps.get("board")
-    player = ctx.deps.get("current_player")
-    size = ctx.deps.get("size", 3)  # Tamaño del tablero, por defecto 3
+
+# Algoritmo Minimax para uso como fallback
+def minimax_algorithm(board: List[Optional[str]], current_player: str, size: int = 3) -> int:
+    """
+    Implementación del algoritmo Minimax que retorna solo la posición del mejor movimiento.
+    Usado como fallback cuando Ollama no está disponible.
+    """
     if len(board) < size * size:
         raise ValueError(f"El board debe tener al menos {size*size} posiciones, tiene {len(board)}.")
 
-    opponent = 'O' if player == 'X' else 'X'
+    opponent = 'O' if current_player == 'X' else 'X'
 
     # Función Minimax
     def minimax(board, depth, is_maximizing):
         winner = check_winner(board, size)
-        if winner == player:
+        if winner == current_player:
             return 1
         elif winner == opponent:
             return -1
@@ -81,7 +100,7 @@ def make_move(ctx: RunContext[dict]) -> dict:
             best_score = -float('inf')
             for i in range(size * size):
                 if board[i] is None:
-                    board[i] = player
+                    board[i] = current_player
                     score = minimax(board, depth + 1, False)
                     board[i] = None
                     best_score = max(best_score, score)
@@ -100,7 +119,7 @@ def make_move(ctx: RunContext[dict]) -> dict:
     best_move = None
     for i in range(size * size):
         if board[i] is None:
-            board[i] = player
+            board[i] = current_player
             score = minimax(board, 0, False)
             board[i] = None
             if score > best_score:
@@ -108,14 +127,25 @@ def make_move(ctx: RunContext[dict]) -> dict:
                 best_move = i
 
     if best_move is not None:
-        board[best_move] = player
-        return {"position": best_move, "player": player, "board": board}
+        return best_move
+    else:
+        return -1  # No hay movimientos disponibles
+
+
+# Implementación de movimiento inteligente usando Minimax (función legacy para compatibilidad)
+def make_move_endpoint(board: List[Optional[str]], current_player: str, size: int = 3) -> dict:
+    """Realiza un movimiento inteligente en el tablero basado en el algoritmo Minimax."""
+    position = minimax_algorithm(board, current_player, size)
+    
+    if position != -1:
+        board_copy = board.copy()
+        board_copy[position] = current_player
+        return {"position": position, "player": current_player, "board": board_copy}
     else:
         return {"error": "No hay movimientos disponibles"}
 
 
-# Implementación del tool 'check_winner' del agente
-@agent.tool_plain
+# Función para verificar ganador
 def check_winner(board: List[Optional[str]], size: int) -> Optional[str]:
     """Verifica si hay un ganador en el tablero."""
     # Combinaciones ganadoras

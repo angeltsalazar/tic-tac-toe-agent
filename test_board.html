@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Tic Tac Toe Board</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .cell:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Test Tic Tac Toe Board</h1>
+        <div id="status">Testing board display...</div>
+        <div class="game-board" id="board">
+            <div class="cell" onclick="cellClick(0)">❌</div>
+            <div class="cell" onclick="cellClick(1)"></div>
+            <div class="cell" onclick="cellClick(2)">⭕</div>
+            <div class="cell" onclick="cellClick(3)"></div>
+            <div class="cell" onclick="cellClick(4)">❌</div>
+            <div class="cell" onclick="cellClick(5)"></div>
+            <div class="cell" onclick="cellClick(6)">⭕</div>
+            <div class="cell" onclick="cellClick(7)"></div>
+            <div class="cell" onclick="cellClick(8)">❌</div>
+        </div>
+    </div>
+    
+    <script>
+        function cellClick(index) {
+            console.log('Clicked cell:', index);
+            document.getElementById('status').textContent = `Clicked cell ${index}`;
+        }
+        
+        console.log('Test board loaded successfully');
+        document.getElementById('status').textContent = 'Board loaded! Click any cell to test.';
+    </script>
+</body>
+</html>
