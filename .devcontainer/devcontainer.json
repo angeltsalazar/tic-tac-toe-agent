@@ -1,0 +1,79 @@
+{
+  "name": "Tic-Tac-Toe Agent Development",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bullseye",
+  
+  // Configuración del contenedor
+  "customizations": {
+    "vscode": {
+      // Extensiones OBLIGATORIAS solo para Codespaces (no se sincronizan)
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylint", 
+        "ms-python.black-formatter",
+        "ms-vscode.vscode-json",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-vscode.live-server"
+      ],
+      
+      // Extensiones que NO queremos sincronizar desde local
+      "unsyncedExtensions": [
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ],
+      
+      // Configuraciones específicas para Codespaces
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        
+        // Optimizaciones para Codespaces
+        "typescript.preferences.includePackageJsonAutoImports": "off",
+        "typescript.suggest.autoImports": false,
+        "editor.quickSuggestions": {
+          "other": false,
+          "comments": false,
+          "strings": false
+        },
+        "editor.parameterHints.enabled": false,
+        "editor.hover.delay": 1000,
+        
+        // File watchers optimizados
+        "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "**/node_modules/**": true,
+          "**/tmp/**": true,
+          "**/__pycache__/**": true,
+          "**/venv/**": true
+        }
+      }
+    }
+  },
+  
+  // Puertos a abrir automáticamente
+  "forwardPorts": [8000, 3000, 5000],
+  "portsAttributes": {
+    "8000": {
+      "label": "Tic-Tac-Toe Game Server",
+      "onAutoForward": "notify"
+    }
+  },
+  
+  // Comandos post-create
+  "postCreateCommand": "bash scripts/setup-codespaces.sh",
+  
+  // Features adicionales
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  
+  // Variables de entorno
+  "remoteEnv": {
+    "PYTHONPATH": "/workspaces/tic-tac-toe-agent",
+    "ENVIRONMENT": "codespaces"
+  }
+}

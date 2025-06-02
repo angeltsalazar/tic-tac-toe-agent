@@ -170,15 +170,28 @@ https://[tu-codespace-name]-8000.app.github.dev/
 - **Modo Debugging:** Logs detallados para troubleshooting
 - **Diagnóstico de Latencia:** Solucionar teclado lento en VS Code
 
-#### ⌨️ ¿Teclado Lento?
-Si sientes que VS Code responde lento al escribir:
-```bash
-# Diagnóstico automático y solución
-./monitor-latency.sh --clean
+#### ⌨️ ¿Teclado Lento en Sesiones Largas?
+**Problema común:** Degradación del rendimiento en sesiones largas de Codespaces
 
-# Monitor en tiempo real de latencia  
-./monitor-latency.sh
+**🚀 Soluciones por prioridad:**
+```bash
+# 1️⃣ Solución rápida (sin perder contexto)
+./auto-optimize.sh clean
+
+# 2️⃣ Monitor inteligente automático  
+./latency-detector.sh monitor
+
+# 3️⃣ Configuración optimizada para sesiones largas
+./auto-optimize.sh setup
+
+# 4️⃣ Si persiste: Ctrl+Shift+P > "Developer: Reload Window"
 ```
+
+**🎯 Mejores prácticas:**
+- **Prevención:** `./latency-detector.sh baseline` al iniciar
+- **Monitoreo:** `./latency-detector.sh monitor` en background  
+- **Corrección:** `./latency-detector.sh auto-fix` cuando se detecte
+- **Último recurso:** Nueva sesión (solo si las anteriores fallan)
 
 #### 📈 Métricas Típicas Durante el Juego:
 - CPU: 10-30% (picos durante decisiones de IA)

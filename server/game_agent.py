@@ -170,3 +170,25 @@ def check_winner(board: List[Optional[str]], size: int) -> Optional[str]:
         return "Tie"  # Empate
 
     return None  # El juego continúa
+
+
+# Clase GameAgent para compatibilidad con validación
+class GameAgent:
+    """Agente de IA para el juego Tic-Tac-Toe."""
+    
+    def __init__(self):
+        self.size = 3
+    
+    def get_move(self, board: List[Optional[str]], player: str) -> Optional[int]:
+        """Obtiene el mejor movimiento para el jugador actual."""
+        try:
+            # Usar algoritmo minimax como fallback confiable
+            position = minimax_algorithm(board, player, self.size)
+            return position if position != -1 else None
+        except Exception as e:
+            logger.error(f"Error en get_move: {e}")
+            # Fallback: primer espacio disponible
+            for i, spot in enumerate(board):
+                if spot is None:
+                    return i
+            return None
